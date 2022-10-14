@@ -6,7 +6,7 @@ class Usuario(Base):
     __tablename__ = 'usuarios'
     
     id = Column(Integer, primary_key=True, index=True)
-    nome = Column(String(150), index=True)
+    nome = Column(String(150))
     email = Column(String(150), unique=True, index=True)
     senha = Column(String(255))
     emprestimos = relationship('Emprestimo', back_populates='usuario')
