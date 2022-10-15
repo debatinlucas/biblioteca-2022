@@ -1,6 +1,7 @@
 
 from sqlalchemy.orm import Session
-from exceptions import UsuarioAlreadyExistError, UsuarioNotFoundError, EmprestimoNotFoundError
+from sqlalchemy import and_
+from exceptions import UsuarioAlreadyExistError, UsuarioNotFoundError, EmprestimoNotFoundError, LivroNotFoundError, ItemEmprestimoAlreadyExistError, ItemEmprestimoNotFoundError
 import models, schemas
 
 # usuário
@@ -43,6 +44,38 @@ def delete_usuario_by_id(db: Session, usuario_id: int):
     db.commit()
     return
 
+# livro
+
+def get_livro_by_id(db: Session, livro_id: int):
+    db_livro = db.query(models.Livro).get(livro_id)
+    if db_livro is None:
+        raise LivroNotFoundError
+    return db_livro
+
+def get_all_livros(db: Session, offset: int, limit: int):
+    return db.query(models.Livro).offset(offset).limit(limit).all()
+
+def create_livro(db: Session, livro: schemas.LivroCreate):
+    db_livro = models.Livro(**livro.dict())
+    db.add(db_livro)
+    db.commit()
+    db.refresh(db_livro)
+    return db_livro
+
+def update_livro(db: Session, livro_id: int, livro: schemas.LivroCreate):
+    db_livro = get_livro_by_id(db, livro_id)
+    db_livro.titulo = livro.titulo
+    db_livro.resumo = livro.resumo
+    db.commit()
+    db.refresh(db_livro)
+    return db_livro
+
+def delete_livro_by_id(db: Session, livro_id: int):
+    db_livro = get_livro_by_id(db, livro_id)
+    db.delete(db_livro)
+    db.commit()
+    return
+
 # empréstimo
 
 def create_emprestimo(db: Session, emprestimo: schemas.EmprestimoCreate):
@@ -68,3 +101,34 @@ def update_emprestimo(db: Session, emprestimo_id: int, emprestimo: schemas.Empre
     db.commit()
     db.refresh(db_emprestimo)
     return db_emprestimo
+
+# item empréstimo
+
+def create_item_emprestimo(db: Session, item_emprestimo: schemas.ItemEmprestimoCreate):
+    get_emprestimo_by_id(db, item_emprestimo.id_emprestimo)
+    get_livro_by_id(db, item_emprestimo.id_livro)
+
+    db_item_emprestimo = get_item_emprestimo_by_ids_create(db, item_emprestimo.id_emprestimo, item_emprestimo.id_livro)
+    if db_item_emprestimo is not None:
+        raise ItemEmprestimoAlreadyExistError
+
+    db_item_emprestimo = models.ItemEmprestimo(**item_emprestimo.dict())
+    db.add(db_item_emprestimo)
+    db.commit()
+    db.refresh(db_item_emprestimo)
+    return db_item_emprestimo
+
+def delete_item_emprestimo_by_id(db: Session, id_emprestimo: int, id_livro: int):
+    db_item_emprestimo = get_item_emprestimo_by_ids(db, id_emprestimo, id_livro)
+    db.delete(db_item_emprestimo)
+    db.commit()
+    return
+
+def get_item_emprestimo_by_ids_create(db: Session, id_emprestimo: int, id_livro: int):
+    return db.query(models.ItemEmprestimo).filter(and_(models.ItemEmprestimo.id_emprestimo == id_emprestimo, models.ItemEmprestimo.id_livro == id_livro)).first()
+
+def get_item_emprestimo_by_ids(db: Session, id_emprestimo: int, id_livro: int):
+    db_item_emprestimo = db.query(models.ItemEmprestimo).filter(and_(models.ItemEmprestimo.id_emprestimo == id_emprestimo, models.ItemEmprestimo.id_livro == id_livro)).first()
+    if db_item_emprestimo is None:
+        raise ItemEmprestimoNotFoundError
+    return db_item_emprestimo

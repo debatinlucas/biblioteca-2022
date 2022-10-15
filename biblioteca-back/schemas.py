@@ -2,6 +2,31 @@ from datetime import date
 from typing import List
 from pydantic import BaseModel
 
+class LivroBase(BaseModel):
+    titulo: str
+    resumo: str
+class LivroCreate(LivroBase):
+    pass
+class Livro(LivroBase):
+    id: int
+    class Config:
+        orm_mode = True
+
+class PaginatedLivro(BaseModel):
+    limit: int
+    offset: int
+    data: List[Livro]
+
+class ItemEmprestimoBase(BaseModel):
+    id_livro: str
+    id_emprestimo: str
+class ItemEmprestimoCreate(ItemEmprestimoBase):
+    pass
+class ItemEmprestimo(ItemEmprestimoBase):
+    pass
+    class Config:
+        orm_mode = True
+
 class EmprestimoBase(BaseModel):
     id_usuario: int
     status: int
@@ -12,6 +37,7 @@ class EmprestimoCreate(EmprestimoBase):
     pass
 class Emprestimo(EmprestimoBase):
     id: int
+    itens_emprestimo: List[ItemEmprestimo] = []
     class Config:
         orm_mode = True
 

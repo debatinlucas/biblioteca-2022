@@ -19,3 +19,22 @@ class EmprestimoNotFoundError(EmprestimoException):
     def __init__(self):
         self.status_code = 404
         self.detail = "Empréstimo não encontrado"
+class LivroException(Exception):
+    ...
+
+class LivroNotFoundError(LivroException):
+    def __init__(self):
+        self.status_code = 404
+        self.detail = "Livro não encontrado"
+
+class ItemEmprestimoException(Exception):
+    ...
+
+class ItemEmprestimoNotFoundError(ItemEmprestimoException):
+    def __init__(self):
+        self.status_code = 404
+        self.detail = "Item empréstimo não encontrado"
+class ItemEmprestimoAlreadyExistError(ItemEmprestimoException):
+    def __init__(self):
+        self.status_code = 409
+        self.detail = "Item empréstimo já cadastrado"
