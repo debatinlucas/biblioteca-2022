@@ -6,6 +6,12 @@ import models, schemas
 
 # usuário
 
+def check_usuario(db: Session, usuario: schemas.UsuarioLoginSchema):
+    db_usuario = db.query(models.Usuario).filter(and_(models.Usuario.email == usuario.email, models.Usuario.senha == usuario.senha)).first()
+    if db_usuario is None:
+        return False
+    return True
+
 def get_usuario_by_id(db: Session, usuario_id: int):
     db_usuario = db.query(models.Usuario).get(usuario_id)
     if db_usuario is None:
