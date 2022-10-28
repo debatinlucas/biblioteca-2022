@@ -10,7 +10,7 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 # login
-@app.post("/signup", tags=["usuario"])
+@app.post("/api/signup", tags=["usuario"])
 async def create_usuario_signup(usuario: schemas.UsuarioCreate = Body(...), db: Session = Depends(get_db)):
     try:
         crud.create_usuario(db, usuario)
@@ -18,7 +18,7 @@ async def create_usuario_signup(usuario: schemas.UsuarioCreate = Body(...), db: 
     except UsuarioException as cie:
         raise HTTPException(**cie.__dict__)
 
-@app.post("/login", tags=["usuario"])
+@app.post("/api/login", tags=["usuario"])
 async def user_login(usuario: schemas.UsuarioLoginSchema = Body(...), db: Session = Depends(get_db)):
     if crud.check_usuario(db, usuario):
         return signJWT(usuario.email)
@@ -28,34 +28,34 @@ async def user_login(usuario: schemas.UsuarioLoginSchema = Body(...), db: Sessio
 
 # usuário
 
-@app.get("/usuarios/{usuario_id}", dependencies=[Depends(JWTBearer())])
+@app.get("/api/usuarios/{usuario_id}", dependencies=[Depends(JWTBearer())])
 def get_usuario_by_id(usuario_id: int, db: Session = Depends(get_db)):
     try:
         return crud.get_usuario_by_id(db, usuario_id)
     except UsuarioException as cie:
         raise HTTPException(**cie.__dict__)
 
-@app.get("/usuarios", dependencies=[Depends(JWTBearer())], response_model=schemas.PaginatedUsuario)
+@app.get("/api/usuarios", dependencies=[Depends(JWTBearer())], response_model=schemas.PaginatedUsuario)
 def get_all_usuarios(db: Session = Depends(get_db), offset: int = 0, limit: int = 10):
     db_usuarios = crud.get_all_usuarios(db, offset, limit)
     response = {"limit": limit, "offset": offset, "data": db_usuarios}
     return response
 
-@app.post("/usuarios", dependencies=[Depends(JWTBearer())], response_model=schemas.Usuario)
+@app.post("/api/usuarios", dependencies=[Depends(JWTBearer())], response_model=schemas.Usuario)
 def create_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
     try:
         return crud.create_usuario(db, usuario)
     except UsuarioException as cie:
         raise HTTPException(**cie.__dict__)
 
-@app.put("/usuarios/{usuario_id}", dependencies=[Depends(JWTBearer())], response_model=schemas.Usuario)
+@app.put("/api/usuarios/{usuario_id}", dependencies=[Depends(JWTBearer())], response_model=schemas.Usuario)
 def update_usuario(usuario_id: int, usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
     try:
         return crud.update_usuario(db, usuario_id, usuario)
     except UsuarioException as cie:
         raise HTTPException(**cie.__dict__)
 
-@app.delete("/usuarios/{usuario_id}", dependencies=[Depends(JWTBearer())])
+@app.delete("/api/usuarios/{usuario_id}", dependencies=[Depends(JWTBearer())])
 def delete_usuario_by_id(usuario_id: int, db: Session = Depends(get_db)):
     try:
         return crud.delete_usuario_by_id(db, usuario_id)
@@ -64,34 +64,34 @@ def delete_usuario_by_id(usuario_id: int, db: Session = Depends(get_db)):
 
 # livro
 
-@app.get("/livros/{livro_id}", dependencies=[Depends(JWTBearer())])
+@app.get("/api/livros/{livro_id}", dependencies=[Depends(JWTBearer())])
 def get_livro_by_id(livro_id: int, db: Session = Depends(get_db)):
     try:
         return crud.get_livro_by_id(db, livro_id)
     except LivroException as cie:
         raise HTTPException(**cie.__dict__)
 
-@app.get("/livros", dependencies=[Depends(JWTBearer())], response_model=schemas.PaginatedLivro)
+@app.get("/api/livros", dependencies=[Depends(JWTBearer())], response_model=schemas.PaginatedLivro)
 def get_all_livros(db: Session = Depends(get_db), offset: int = 0, limit: int = 10):
     db_livros = crud.get_all_livros(db, offset, limit)
     response = {"limit": limit, "offset": offset, "data": db_livros}
     return response
 
-@app.post("/livros", dependencies=[Depends(JWTBearer())], response_model=schemas.Livro)
+@app.post("/api/livros", dependencies=[Depends(JWTBearer())], response_model=schemas.Livro)
 def create_livro(livro: schemas.LivroCreate, db: Session = Depends(get_db)):
     try:
         return crud.create_livro(db, livro)
     except LivroException as cie:
         raise HTTPException(**cie.__dict__)
 
-@app.put("/livros/{livro_id}", dependencies=[Depends(JWTBearer())], response_model=schemas.Livro)
+@app.put("/api/livros/{livro_id}", dependencies=[Depends(JWTBearer())], response_model=schemas.Livro)
 def update_livro(livro_id: int, livro: schemas.LivroCreate, db: Session = Depends(get_db)):
     try:
         return crud.update_livro(db, livro_id, livro)
     except LivroException as cie:
         raise HTTPException(**cie.__dict__)
 
-@app.delete("/livros/{livro_id}", dependencies=[Depends(JWTBearer())])
+@app.delete("/api/livros/{livro_id}", dependencies=[Depends(JWTBearer())])
 def delete_livro_by_id(livro_id: int, db: Session = Depends(get_db)):
     try:
         return crud.delete_livro_by_id(db, livro_id)
@@ -101,33 +101,33 @@ def delete_livro_by_id(livro_id: int, db: Session = Depends(get_db)):
 
 # empréstimo
 
-@app.post("/emprestimos", dependencies=[Depends(JWTBearer())], response_model=schemas.Emprestimo)
+@app.post("/api/emprestimos", dependencies=[Depends(JWTBearer())], response_model=schemas.Emprestimo)
 def create_emprestimo(emprestimo: schemas.EmprestimoCreate, db: Session = Depends(get_db)):
     try:
         return crud.create_emprestimo(db, emprestimo)
     except UsuarioException as cie:
         raise HTTPException(**cie.__dict__)
 
-@app.get("/emprestimos/{emprestimo_id}", dependencies=[Depends(JWTBearer())])
+@app.get("/api/emprestimos/{emprestimo_id}", dependencies=[Depends(JWTBearer())])
 def get_emprestimo_by_id(emprestimo_id: int, db: Session = Depends(get_db)):
     try:
         return crud.get_emprestimo_by_id(db, emprestimo_id)
     except EmprestimoException as cie:
         raise HTTPException(**cie.__dict__)
 
-@app.get("/emprestimos", dependencies=[Depends(JWTBearer())], response_model=schemas.PaginatedEmprestimo)
+@app.get("/api/emprestimos", dependencies=[Depends(JWTBearer())], response_model=schemas.PaginatedEmprestimo)
 def get_all_emprestimos(db: Session = Depends(get_db), offset: int = 0, limit: int = 10):
     db_emprestimos = crud.get_all_emprestimos(db, offset, limit)
     response = {"limit": limit, "offset": offset, "data": db_emprestimos}
     return response
 
-@app.put("/emprestimos/{emprestimo_id}", dependencies=[Depends(JWTBearer())], response_model=schemas.Emprestimo)
+@app.put("/api/emprestimos/{emprestimo_id}", dependencies=[Depends(JWTBearer())], response_model=schemas.Emprestimo)
 def update_emprestimo(emprestimo_id: int, emprestimo: schemas.EmprestimoUpdate, db: Session = Depends(get_db)):
     return crud.update_emprestimo(db, emprestimo_id, emprestimo)
 
 # item empréstimo
 
-@app.post("/itens-emprestimo", dependencies=[Depends(JWTBearer())], response_model=schemas.ItemEmprestimo)
+@app.post("/api/itens-emprestimo", dependencies=[Depends(JWTBearer())], response_model=schemas.ItemEmprestimo)
 def create_item_emprestimo(item_emprestimo: schemas.ItemEmprestimoCreate, db: Session = Depends(get_db)):
     try:
         return crud.create_item_emprestimo(db, item_emprestimo)
@@ -138,7 +138,7 @@ def create_item_emprestimo(item_emprestimo: schemas.ItemEmprestimoCreate, db: Se
     except ItemEmprestimoException as cie:
         raise HTTPException(**cie.__dict__)
 
-@app.delete("/itens-emprestimo/{emprestimo_id}/{livro_id}", dependencies=[Depends(JWTBearer())])
+@app.delete("/api/itens-emprestimo/{emprestimo_id}/{livro_id}", dependencies=[Depends(JWTBearer())])
 def delete_item_emprestimo_by_id(emprestimo_id: int, livro_id: int, db: Session = Depends(get_db)):
     try:
         return crud.delete_item_emprestimo_by_id(db, emprestimo_id, livro_id)

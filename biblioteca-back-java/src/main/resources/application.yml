@@ -1,0 +1,13 @@
+spring:
+    datasource:
+        url: jdbc:mysql://localhost:3306/biblioteca-java
+        username: root
+        password: master
+    jpa:
+        hibernate:
+            ddlAuto: update
+        showSql: true
+    main:
+        allow-circular-references: true
+server:
+    port: 3333
