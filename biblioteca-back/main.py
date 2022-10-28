@@ -22,9 +22,7 @@ async def create_usuario_signup(usuario: schemas.UsuarioCreate = Body(...), db: 
 async def user_login(usuario: schemas.UsuarioLoginSchema = Body(...), db: Session = Depends(get_db)):
     if crud.check_usuario(db, usuario):
         return signJWT(usuario.email)
-    return {
-        "error": "E-mail ou senha incorretos!"
-    }
+    raise HTTPException(status_code=400, detail="USUARIO_INCORRETO")
 
 # usuário
 
