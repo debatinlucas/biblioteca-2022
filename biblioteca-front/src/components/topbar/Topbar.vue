@@ -22,6 +22,7 @@
 <script>
 import { removeCookie } from '@/helpers/cookies/cookie';
 import { goToLoginPage } from '@/router/route.service';
+import { goToUsuarios } from '@/modules/gerenciar/gerenciar.routes';
 
 export default {
   name: 'BibliotecaTopbar',
@@ -40,6 +41,7 @@ export default {
     onEmprestimos() {
     },
     onUsuarios() {
+      goToUsuarios(this.$router);
     },
   },
 };
