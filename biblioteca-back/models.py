@@ -1,4 +1,4 @@
-from sqlalchemy import SmallInteger, Date, Column, ForeignKey, Integer, String
+from sqlalchemy import SmallInteger, Date, Column, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -19,7 +19,7 @@ class Emprestimo(Base):
     status = Column(SmallInteger)
     id_usuario = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     usuario = relationship("Usuario", back_populates="emprestimos")
-    itens_emprestimo = relationship("ItemEmprestimo", back_populates="emprestimo")
+    livros = relationship("Livro", secondary="itens_emprestimo", back_populates='emprestimos')
 
 class Livro(Base):
     __tablename__ = 'livros'
@@ -27,12 +27,9 @@ class Livro(Base):
     id = Column(Integer, primary_key=True, index=True)
     titulo = Column(String(150))
     resumo = Column(String(1000))
-    itens_emprestimo = relationship("ItemEmprestimo", back_populates="livro")
+    emprestimos = relationship("Emprestimo", secondary="itens_emprestimo", back_populates='livros')
 
-class ItemEmprestimo(Base):
-    __tablename__ = "itens_emprestimo"
-
-    id_livro = Column(Integer, ForeignKey('livros.id'), primary_key=True, nullable=False)
-    id_emprestimo = Column(Integer, ForeignKey('emprestimos.id'), primary_key=True, nullable=False)
-    livro = relationship("Livro", back_populates="itens_emprestimo")
-    emprestimo = relationship("Emprestimo", back_populates="itens_emprestimo")
+itens_emprestimo = Table('itens_emprestimo', Base.metadata,
+    Column('id_livro', ForeignKey('livros.id'), primary_key=True),
+    Column('id_emprestimo', ForeignKey('emprestimos.id'), primary_key=True)
+)

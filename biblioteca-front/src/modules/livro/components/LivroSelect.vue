@@ -1,29 +1,29 @@
 <template>
   <div>
-    <div v-if="usuarios.length > 0">
+    <div v-if="livros.length > 0">
       <div v-if="showLabel">
-        Usuário*
+        Livro*
       </div>
       <biblioteca-select
         v-bind="$attrs"
-        name="usuário"
+        name="livro"
         rules="required"
         :class="showLabel ? 'mt--md' : ''"
         @on-change="onChange">
-        <option :value="null" disabled>Selecione um usuário...</option>
+        <option :value="null" disabled>Selecione um livro...</option>
         <option
-          v-for="usuario in usuarios"
-          :key="usuario.id"
-          :value="usuario.id">
-          {{ usuario.nome }}
+          v-for="livro in livros"
+          :key="livro.id"
+          :value="livro.id">
+          {{ livro.titulo }}
         </option>
       </biblioteca-select>
     </div>
     <div v-else class="mb-3 mt-4">
       <biblioteca-p color="danger">
-        *Você não possui usuários cadastrados
+        *Você não possui livros cadastrados
         <biblioteca-button @click="onCreate">
-          Criar Usuário
+          Criar Livro
         </biblioteca-button>
       </biblioteca-p>
     </div>
@@ -31,11 +31,11 @@
 </template>
 
 <script>
-import { fetchUsuarios } from '@/modules/usuario/usuario.service';
-import { goToCreateUsuario } from '@/modules/usuario/usuario.routes';
+import { fetchLivros } from '@/modules/livro/livro.service';
+import { goToCreateLivro } from '@/modules/livro/livro.routes';
 
 export default {
-  name: 'BibliotecaUsuarioSelect',
+  name: 'BibliotecaLivroSelect',
   props: {
     showLabel: {
       type: Boolean,
@@ -48,7 +48,7 @@ export default {
   },
   data() {
     return {
-      usuarios: [],
+      livros: [],
     };
   },
   created() {
@@ -56,19 +56,19 @@ export default {
   },
   methods: {
     onfetch() {
-      fetchUsuarios()
+      fetchLivros()
         .then(({ data }) => {
-          this.usuarios = data.data;
+          this.livros = data.data;
         })
         .catch(() => {
-          this.usuarios = null;
+          this.livros = null;
         });
     },
     onChange(id) {
       this.$emit('on-change', { id });
     },
     onCreate() {
-      goToCreateUsuario(this.$router);
+      goToCreateLivro(this.$router);
     },
   },
 };

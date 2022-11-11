@@ -22,7 +22,7 @@
 <script>
 import { removeCookie } from '@/helpers/cookies/cookie';
 import { goToLoginPage } from '@/router/route.service';
-import { goToUsuarios } from '@/modules/gerenciar/gerenciar.routes';
+import { goToLivros, goToEmprestimos, goToUsuarios } from '@/modules/gerenciar/gerenciar.routes';
 
 export default {
   name: 'BibliotecaTopbar',
@@ -37,8 +37,10 @@ export default {
       goToLoginPage();
     },
     onLivros() {
+      goToLivros(this.$router);
     },
     onEmprestimos() {
+      goToEmprestimos(this.$router);
     },
     onUsuarios() {
       goToUsuarios(this.$router);

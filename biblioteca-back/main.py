@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
-from exceptions import UsuarioException, EmprestimoException, LivroException, ItemEmprestimoException
+from exceptions import UsuarioException, EmprestimoException, LivroException
 from database import get_db, engine
 import crud, models, schemas
 from auth.auth_handler import signJWT
@@ -26,7 +26,7 @@ async def user_login(usuario: schemas.UsuarioLoginSchema = Body(...), db: Sessio
 
 # usuário
 
-@app.get("/api/usuarios/{usuario_id}", dependencies=[Depends(JWTBearer())])
+@app.get("/api/usuarios/{usuario_id}", dependencies=[Depends(JWTBearer())], response_model=schemas.Usuario)
 def get_usuario_by_id(usuario_id: int, db: Session = Depends(get_db)):
     try:
         return crud.get_usuario_by_id(db, usuario_id)
@@ -62,7 +62,7 @@ def delete_usuario_by_id(usuario_id: int, db: Session = Depends(get_db)):
 
 # livro
 
-@app.get("/api/livros/{livro_id}", dependencies=[Depends(JWTBearer())])
+@app.get("/api/livros/{livro_id}", dependencies=[Depends(JWTBearer())], response_model=schemas.Livro)
 def get_livro_by_id(livro_id: int, db: Session = Depends(get_db)):
     try:
         return crud.get_livro_by_id(db, livro_id)
@@ -106,7 +106,7 @@ def create_emprestimo(emprestimo: schemas.EmprestimoCreate, db: Session = Depend
     except UsuarioException as cie:
         raise HTTPException(**cie.__dict__)
 
-@app.get("/api/emprestimos/{emprestimo_id}", dependencies=[Depends(JWTBearer())])
+@app.get("/api/emprestimos/{emprestimo_id}", dependencies=[Depends(JWTBearer())], response_model=schemas.Emprestimo)
 def get_emprestimo_by_id(emprestimo_id: int, db: Session = Depends(get_db)):
     try:
         return crud.get_emprestimo_by_id(db, emprestimo_id)
@@ -122,23 +122,3 @@ def get_all_emprestimos(db: Session = Depends(get_db), offset: int = 0, limit: i
 @app.put("/api/emprestimos/{emprestimo_id}", dependencies=[Depends(JWTBearer())], response_model=schemas.Emprestimo)
 def update_emprestimo(emprestimo_id: int, emprestimo: schemas.EmprestimoUpdate, db: Session = Depends(get_db)):
     return crud.update_emprestimo(db, emprestimo_id, emprestimo)
-
-# item empréstimo
-
-@app.post("/api/itens-emprestimo", dependencies=[Depends(JWTBearer())], response_model=schemas.ItemEmprestimo)
-def create_item_emprestimo(item_emprestimo: schemas.ItemEmprestimoCreate, db: Session = Depends(get_db)):
-    try:
-        return crud.create_item_emprestimo(db, item_emprestimo)
-    except LivroException as cie:
-        raise HTTPException(**cie.__dict__)
-    except EmprestimoException as cie:
-        raise HTTPException(**cie.__dict__)
-    except ItemEmprestimoException as cie:
-        raise HTTPException(**cie.__dict__)
-
-@app.delete("/api/itens-emprestimo/{emprestimo_id}/{livro_id}", dependencies=[Depends(JWTBearer())])
-def delete_item_emprestimo_by_id(emprestimo_id: int, livro_id: int, db: Session = Depends(get_db)):
-    try:
-        return crud.delete_item_emprestimo_by_id(db, emprestimo_id, livro_id)
-    except ItemEmprestimoException as cie:
-        raise HTTPException(**cie.__dict__)
